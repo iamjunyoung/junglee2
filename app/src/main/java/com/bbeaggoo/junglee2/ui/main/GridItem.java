@@ -6,7 +6,7 @@ import android.net.Uri;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-public class jeongleeItem extends RealmObject {
+public class GridItem extends RealmObject {
 
     @PrimaryKey
     private long id;
@@ -20,10 +20,9 @@ public class jeongleeItem extends RealmObject {
     private String folder;
     private String date;
     private boolean checked;
+    public int viewType;
 
-    public long getId() {
-        return id;
-    }
+    public long getId() { return id; }
 
     public void setId(long id) {
         this.id = id;
@@ -100,4 +99,8 @@ public class jeongleeItem extends RealmObject {
     public void setChecked(boolean checked) {
         this.checked = checked;
     }
+
+    public int getViewType() { return viewType; }
+
+    public void setViewType(int viewType) { this.viewType = viewType; }
 }

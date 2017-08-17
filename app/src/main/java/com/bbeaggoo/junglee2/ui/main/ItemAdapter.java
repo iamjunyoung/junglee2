@@ -1,10 +1,8 @@
-package com.bbeaggoo.junglee2.ui.main;
+package com.bbeaggoo.junglee.category;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Handler;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,13 +12,17 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bbeaggoo.junglee.R;
-import com.bbeaggoo.junglee.category.model.ChildItem;
-import com.bbeaggoo.junglee.category.model.Item;
-import com.bbeaggoo.junglee.category.model.ParentItem;
+import com.bbeaggoo.junglee2.R;
+import com.bbeaggoo.junglee2.ui.main.ChildItem;
+import com.bbeaggoo.junglee2.ui.main.GridItem;
+import com.bbeaggoo.junglee2.ui.main.Item;
+import com.bbeaggoo.junglee2.ui.main.ItemTouchHelperListener;
+import com.bbeaggoo.junglee2.ui.main.ParentItem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,8 +39,8 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private final int PARENT_ITEM_VIEW = 0;
     private final int CHILD_ITEM_VIEW = 1;
 
-    public ArrayList<Item> items = null;
-    public ArrayList<Item> visibleItems = null;
+    public ArrayList<GridItem> items = null;
+    public ArrayList<GridItem> visibleItems = null;
 
     // JYN for swipe and undo
     //private ArrayList<Item> itemsPendingRemoval;
@@ -53,9 +55,6 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private Handler handler = new Handler(); // hanlder for running delayed runnables
     HashMap<Integer, Runnable> pendingRunnables = new HashMap<>(); // map of items to pending runnables, so we can cancel a removal if need be
 
-    // JYN End
-
-    private CategoryManager categoryManager;
     private Context mContext;
     private int lastEditedPosition = -1;
 
@@ -63,7 +62,6 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public ItemAdapter(Context context){
         mContext = context;
-        categoryManager = new CategoryManager(mContext);
 
         items = new ArrayList<>();
         visibleItems = new ArrayList<>();
@@ -71,78 +69,24 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
 
         Log.i("JYN", "[ItemAdapter ] ItemAdapter is generated");
-        /*
-        char alphabet = 'A';
-        for(int i = 0; i < 10; i++){
-            Item item1 = new ParentItem((char)(alphabet+i)+"", PARENT_ITEM_VIEW);
-            Item item2 = new ChildItem((char)(alphabet+i)+"-1", CHILD_ITEM_VIEW);
-            Item item3 = new ChildItem((char)(alphabet+i)+"-2", CHILD_ITEM_VIEW);
-            Item item4 = new ChildItem((char)(alphabet+i)+"-3", CHILD_ITEM_VIEW);
-
-            items.add(item1);
-            items.add(item2);
-            items.add(item3);
-            items.add(item4);
-
-            visibleItems.add(item1);
-            visibleItems.add(item2);
-            visibleItems.add(item3);
-            visibleItems.add(item4);
-        }
-        */
 
         // Load list, hashmap and set this to items and visibleItems.
         if (categoryManager.alkitab != null) {
             for (int i = 0 ; i < categoryManager.alkitab.size() ; i++) {
-                Item item = new ParentItem(categoryManager.alkitab.get(i), PARENT_ITEM_VIEW);
+                GridItem item = new GridItem(categoryManager.alkitab.get(i), PARENT_ITEM_VIEW);
                 items.add(item);
                 visibleItems.add(item);
                 Log.i("JYN", "[ItemAdapter] add parent : " + categoryManager.alkitab.get(i));
 
-                if ( categoryManager.data_alkitab.get(categoryManager.alkitab.get(i)) != null) {
-                    Log.i("JYN", "[ItemAdapter] data_alkitab.get(" + i + ") :" + categoryManager.data_alkitab.get(i));
-                    for (int j = 0 ; j < categoryManager.data_alkitab.get(categoryManager.alkitab.get(i)).size(); j++) {
-                        Item childItem = new ChildItem(categoryManager.data_alkitab.get(categoryManager.alkitab.get(i)).get(j), CHILD_ITEM_VIEW);
-                        items.add(childItem);
-                        visibleItems.add(childItem);
-                        Log.i("JYN", "[ItemAdapter] add child : " + categoryManager.data_alkitab.get(categoryManager.alkitab.get(i)).get(j) + "    of parent :" + categoryManager.alkitab.get(i));
-                    }
-                }
+
             }
         }
 
         // JYN for swipe and undo
         itemsPendingRemoval = new ArrayList<>();
 
-
         // JYN for long touch select
         longTouchSelectedItems = new ArrayList<>();
-    }
-
-    public void reloadData(CategoryManager cm) {
-        this.categoryManager = cm;
-        items = new ArrayList<>();
-        visibleItems = new ArrayList<>();
-
-        // Load list, hashmap and set this to items and visibleItems.
-        if (categoryManager.alkitab != null) {
-            for (int i = 0 ; i < categoryManager.alkitab.size() ; i++) {
-                Item item = new ParentItem(categoryManager.alkitab.get(i), PARENT_ITEM_VIEW);
-                items.add(item);
-                visibleItems.add(item);
-                Log.i("JYN", "[ItemAdapter] add parent : " + categoryManager.alkitab.get(i));
-
-                if ( categoryManager.data_alkitab.get(categoryManager.alkitab.get(i)) != null) {
-                    Log.i("JYN", "[ItemAdapter] data_alkitab.get(" + i + ") :" + categoryManager.data_alkitab.get(i));
-                    for (int j = 0 ; j < categoryManager.data_alkitab.get(categoryManager.alkitab.get(i)).size(); j++) {
-                        Item childItem = new ChildItem(categoryManager.data_alkitab.get(categoryManager.alkitab.get(i)).get(j), CHILD_ITEM_VIEW);
-                        items.add(childItem);
-                        visibleItems.add(childItem);
-                        Log.i("JYN", "[ItemAdapter] add child : " + categoryManager.data_alkitab.get(categoryManager.alkitab.get(i)).get(j) + "    of parent :" + categoryManager.alkitab.get(i));
-                    }
-                }
-            }
-        }
     }
 
     @Override
@@ -166,12 +110,12 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         switch(viewType){
             case PARENT_ITEM_VIEW:
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.category_item, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_grid, parent, false);
                 viewHolder = new ParentItemVH(view);
                 break;
             case CHILD_ITEM_VIEW:
-                View subview = LayoutInflater.from(parent.getContext()).inflate(R.layout.category_subitem, parent, false);
-                viewHolder = new ChildItemVH(subview);
+                //View subview = LayoutInflater.from(parent.getContext()).inflate(R.layout.category_subitem, parent, false);
+                //viewHolder = new ChildItemVH(subview);
                 break;
         }
 
@@ -435,7 +379,7 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 @Override
                 public void run() {
                     Log.i(TAG, "inside [pendingRemoval] pos : " + position //+ "    item " +visibleItems.get(position).name
-                    + "    removingName : " + removingName);
+                            + "    removingName : " + removingName);
                     //remove(visibleItems.indexOf(visibleItems.get(position)));
                     remove(removingName);
                     //그냥 position으로 하면 안되는듯...
@@ -720,6 +664,35 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return position;
     }
 
+    public class GridItemVH extends RecyclerView.ViewHolder {
+        RelativeLayout containerView;
+        LinearLayout contentsView;//gridItemContent
+        TextView headlineView;
+        ImageView imageView;
+        ImageView imageViewCheck;
+        ImageView imageViewCircle;
+
+        TextView categoryOrFolder;
+        ImageView imageViewForMore;
+
+        public GridItemVH(View itemView) {
+            super(itemView);
+            Log.i(TAG, "GridItemVH");
+            containerView = (RelativeLayout)itemView.findViewById(R.id.itemgrid);
+            contentsView = (LinearLayout) itemView.findViewById((R.id.gridItemContent));
+            headlineView = (TextView) itemView.findViewById(R.id.title);
+
+            imageView = (ImageView) itemView.findViewById(R.id.thumbImage);
+            imageViewCheck = (ImageView) itemView.findViewById(R.id.imageView2);
+            imageViewCircle = (ImageView) itemView.findViewById(R.id.imageView3);
+
+            categoryOrFolder = (TextView) itemView.findViewById(R.id.textForCategory);
+            imageViewForMore = (ImageView) itemView.findViewById(R.id.imageForMore);
+            imageViewForMore.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+        }
+    }
+
     public class ParentItemVH extends RecyclerView.ViewHolder {
         public RelativeLayout regularLayout;
         public RelativeLayout swipeLayout;
@@ -766,66 +739,6 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             editName = (EditText)itemView.findViewById(R.id.edit_subitem_name);
             checkBox = (CheckBox)itemView.findViewById(R.id.subitem_checkbox);
         }
-    }
-
-    String newName = null;
-    public void showDialogForEditCategoryName(final int type, final String nameOrigin, final int position) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
-
-        String title = null;
-        if (type == 1) {
-            title = "카테고리";
-        } else {
-            title = "폴더";
-        }
-
-        alertDialogBuilder.setTitle(title + "명 변경");
-        final EditText name = new EditText(mContext);
-        name.setText(nameOrigin);
-        name.selectAll();
-        alertDialogBuilder.setView(name);
-        alertDialogBuilder
-                .setCancelable(false)
-                .setPositiveButton("저장",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(
-                                    DialogInterface dialog, int id) {
-                                newName = name.getText().toString();
-                                if (type == 1) {
-                                    categoryManager.updateCategoryColumn(nameOrigin, newName);
-                                } else {
-                                    categoryManager.updateFolderColumn(nameOrigin, newName);
-                                }
-                                Log.i("JYN", "notifyDataSetChanged start. item : " + items.get(position).name
-                                        + " visibleItem : " + visibleItems.get(position).name);
-                                items.get(position).name = newName;
-                                items.set(position, items.get(position));
-
-                                visibleItems.get(position).name = newName;
-                                visibleItems.set(position, visibleItems.get(position));
-                                //notifyDataSetChanged();
-
-                                notifyItemChanged(position);
-                                Log.i("JYN", "notifyDataSetChanged end. item : " + items.get(position).name
-                                        + " visibleItem : " + visibleItems.get(position).name);
-                                imm.hideSoftInputFromWindow(name.getWindowToken(), 0);
-                                //GridActivity.this.finish();
-                            }
-                        })
-                .setNegativeButton("취소",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(
-                                    DialogInterface dialog, int id) {
-                                // 다이얼로그를 취소한다
-                                imm.hideSoftInputFromWindow(name.getWindowToken(), 0);
-                                dialog.cancel();
-
-                            }
-                        });
-        // 다이얼로그 생성
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        // 다이얼로그 보여주기
-        alertDialog.show();
     }
 
 }

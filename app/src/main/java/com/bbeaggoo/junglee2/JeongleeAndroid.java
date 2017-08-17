@@ -9,7 +9,7 @@ import io.realm.RealmConfiguration;
  * Created by junyoung on 2017. 8. 15..
  */
 
-public class jeongleeAndroid extends Application {
+public class JeongleeAndroid extends Application {
 
     @Override
     public void onCreate() {
