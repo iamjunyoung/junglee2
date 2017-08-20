@@ -20,7 +20,12 @@ public class GridItem extends RealmObject {
     private String folder;
     private String date;
     private boolean checked;
-    public int viewType;
+    private int viewType = 0; //PARENT_ITEM_VIEW
+
+    public GridItem(String title, String url) {
+        this.title = title;
+        this.url = url;
+    }
 
     public long getId() { return id; }
 

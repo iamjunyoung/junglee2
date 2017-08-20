@@ -8,7 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
-import com.bbeaggoo.junglee.R;
+import com.bbeaggoo.junglee2.R;
 
 /**
  * Created by wlsdud.choi on 2016-04-07.
@@ -43,7 +43,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
 
             int top = child.getBottom() + params.bottomMargin;
 
-            if(viewHolder instanceof NewItemAdapter.ParentItemVH){
+            if(viewHolder instanceof NewItemAdapter.GridItemVH){
                 int bottom = top + parentDivider.getIntrinsicHeight();
                 parentDivider.setBounds(left, top, right, bottom);
                 parentDivider.draw(c);
@@ -67,7 +67,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
 
         RecyclerView.ViewHolder viewHolder = (parent.getChildViewHolder(view));
 
-        if(viewHolder instanceof ItemAdapter.ParentItemVH){
+        if(viewHolder instanceof ItemAdapter.GridItemVH){
             outRect.set(0, 1, 0, 1);
         }else{
             outRect.set(20, 1, 20, 1);

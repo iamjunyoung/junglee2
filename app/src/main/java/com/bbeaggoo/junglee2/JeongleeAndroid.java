@@ -18,6 +18,11 @@ public class JeongleeAndroid extends Application {
         initRealm();
     }
 
+    /*
+    초기화
+    Realm을 사용하기 전에, 반드시 초기화해야 한다.
+    Realm.init() 메서드를 이용해 초기화한다. 파라미터로 Context를 받는다.
+     */
     private void initRealm() {
         Realm.init(this);
         RealmConfiguration config = new RealmConfiguration.Builder().build();

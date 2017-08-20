@@ -21,18 +21,19 @@ import android.widget.Toast;
 import com.bbeaggoo.junglee2.R;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 
 
 public class MainActivity extends AppCompatActivity {
 
     private final String TAG = "JYN";
-    private com.bbeaggoo.junglee.category.ItemAdapter adapter;
+    private ItemAdapter adapter;
 
     private Context mContext;
     private CustomRecyclerView recyclerView;
     private Realm mRealm;
 
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = (CustomRecyclerView) findViewById(R.id.recyclerview);
         mContext = this;
 
-        adapter = new com.bbeaggoo.junglee.category.ItemAdapter(this);
+        adapter = new ItemAdapter(this);
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(new DividerItemDecoration(this));
 
@@ -58,136 +59,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //http://itpangpang.xyz/44
-        /*
-        recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
-            @Override
-            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-                Log.d("JYN","onInterceptTouchEvent");
-
-                mGestureDetector.onTouchEvent(e);
-
-                View child = rv.findChildViewUnder(e.getX(), e.getY());
-                if (child != null && gestureDetector.onTouchEvent(e)) {
-                    //Log.d("JYN", "e.getX==>" + e.getX());
-                    //Log.d("JYN", "e.getY==>" + e.getY());
-                    Log.d("JYN", "child==>" + child);
-
-                    Log.d("JYN", "getChildAdapterPosition=>" + rv.getChildAdapterPosition(child));
-                    //Log.d("JYN","getChildLayoutPosition=>"+rv.getChildLayoutPosition(child));
-                    //Log.d("JYN","getChildViewHolder=>" + rv.getChildViewHolder(child));
-
-                    //Log.d(TAG,"AdapterPosition=>"+rv.findViewHolderForAdapterPosition(rv.getChildLayoutPosition(child)));
-                    //Log.d(TAG,"LayoutPosition=>"+rv.findViewHolderForLayoutPosition(rv.getChildLayoutPosition(child)));
-
-                    Log.i(TAG, " : " + adapter.visibleItems.get(rv.getChildAdapterPosition(child)).name
-                    + "    type : " + adapter.visibleItems.get(rv.getChildAdapterPosition(child)).viewType);
-
-                }
-                return false;
-            }
-
-            @Override
-            public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-                Log.i("JYN", "onTouchEvent");
-            }
-
-            @Override
-            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-                Log.d("JYN","onRequestDisallowInterceptTouchEvent");
-
-            }
-        });
-        */
     }
 
     public void hideKeyboard(View view) {
         InputMethodManager imm =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
-
-    String userName;
-    public void showDialogForInputCategory() {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-
-        // 제목셋팅
-        alertDialogBuilder.setTitle("카테고리 추가");
-        // AlertDialog 셋팅
-        final EditText name = new EditText(this);
-        alertDialogBuilder.setView(name);
-        alertDialogBuilder
-                .setMessage("카테고리 이름")
-                .setCancelable(false)
-                .setPositiveButton("종료",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(
-                                    DialogInterface dialog, int id) {
-                                // 프로그램을 종료한다
-                                userName = name.getText().toString();
-                                categoryManager = new CategoryManager(mContext);
-                                categoryManager.addAndReCreateCategoryMenu(userName);
-                                //GridActivity.this.finish();
-
-                                adapter.addParentItem(0, userName);
-                                //adapter.reloadData(categoryManager);
-                                //아래 4줄을 그냥 추가해버렸다. 추후에 수정하도록 하자
-                                /*
-                                adapter = new ItemAdapter(mContext);
-                                recyclerView.setAdapter(adapter);
-                                recyclerView.addItemDecoration(new DividerItemDecoration(mContext));
-                                recyclerView.setLayoutManager(new ItemLayoutManger(mContext));
-                                */
-
-                            }
-                        })
-                .setNegativeButton("취소",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(
-                                    DialogInterface dialog, int id) {
-                                // 다이얼로그를 취소한다
-                                dialog.cancel();
-                            }
-                        });
-        // 다이얼로그 생성
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        // 다이얼로그 보여주기
-        alertDialog.show();
-    }
-
-    String folderName;
-    public void showDialogForInputFolder(final int holderPosition, final String categoryName) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        // 제목셋팅
-        alertDialogBuilder.setTitle("하위폴더 추가");
-        // AlertDialog 셋팅
-        final EditText name = new EditText(this);
-        alertDialogBuilder.setView(name);
-        alertDialogBuilder
-                .setMessage("폴더 이름")
-                .setCancelable(false)
-                .setPositiveButton("확인",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(
-                                    DialogInterface dialog, int id) {
-                                folderName = name.getText().toString();
-                                adapter.newAddingFolder(folderName, holderPosition); //adpater에는 holderPosition을 넣는게 맞다
-                                categoryManager = new CategoryManager(mContext);
-                                categoryManager.addAndReCreateFolderMenu(folderName, categoryName);
-                                //GridActivity.this.finish();
-                            }
-                        })
-                .setNegativeButton("취소",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(
-                                    DialogInterface dialog, int id) {
-                                dialog.cancel();
-                                folderName = null;
-                            }
-                        });
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -201,24 +78,12 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.add_category) {
             Toast.makeText(this, "Add category", Toast.LENGTH_SHORT).show();
-            showDialogForInputCategory();
+
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
-
-
-    /*
-    final GestureDetector gestureDetector = new GestureDetector(mContext, new GestureDetector.SimpleOnGestureListener()
-    {
-        @Override
-        public boolean onSingleTapUp(MotionEvent e)
-        {
-            return true;
-        }
-    });
-    */
 
     private RecyclerView getRecyclerView() {
         return recyclerView;
@@ -249,45 +114,6 @@ public class MainActivity extends AppCompatActivity {
             super.onLongPress(e);
         }
     });
-
-    /**
-     * 데이터 초기화
-     */
-    private void init(){
-
-        mRealm = Realm.getInstance(this);
-
-        RealmResults<UserVO> userList = getUserList();
-        Log.i(TAG, ">>>>>   userList.size :  " + userList.size()); // :0
-
-        //유저 정보 데이터 DB 저장
-        insertuserData();
-
-        Log.i(TAG, ">>>>>   userList.size :  " + userList.size()); // :1
-
-    }
-
-
-    /**
-     * 유저 정보 데이터 리스트 반환
-     */
-    private RealmResults<UserVO> getUserList(){
-        return mRealm.where(UserVO.class).findAll();
-    }
-
-
-    /**
-     * 유저 정보 데이터 DB 저장
-     */
-    private void insertuserData(){
-
-        mRealm.beginTransaction();
-        UserVO user = mRealm.createObject(UserVO.class);
-        user.setName("John");
-        user.setAge(27);
-        mRealm.commitTransaction();
-    }
-
 
 }
 

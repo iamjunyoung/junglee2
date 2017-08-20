@@ -14,7 +14,7 @@
         card_view:cardBackgroundColor="@color/gridItem">
         <!--card_view:cardBackgroundColor="#5cb88b"> -->
 
-        <include layout="@layout/item_regular" />
+        <include layout="@layout/item_grid" />
 
         <include layout="@layout/item_swipe" />
 

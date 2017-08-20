@@ -1,4 +1,4 @@
-package com.bbeaggoo.junglee.category;
+package com.bbeaggoo.junglee2.ui.main;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -18,14 +18,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bbeaggoo.junglee2.R;
-import com.bbeaggoo.junglee2.ui.main.ChildItem;
-import com.bbeaggoo.junglee2.ui.main.GridItem;
-import com.bbeaggoo.junglee2.ui.main.Item;
-import com.bbeaggoo.junglee2.ui.main.ItemTouchHelperListener;
-import com.bbeaggoo.junglee2.ui.main.ParentItem;
+import com.bbeaggoo.junglee2.singletons.JeongleeItemManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 /**
  * Created by wlsdud.choi on 2016-04-01.
@@ -60,8 +59,12 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     InputMethodManager imm;
 
+    Realm mRealm;
+
     public ItemAdapter(Context context){
         mContext = context;
+
+        init();
 
         items = new ArrayList<>();
         visibleItems = new ArrayList<>();
@@ -70,14 +73,13 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         Log.i("JYN", "[ItemAdapter ] ItemAdapter is generated");
 
-        // Load list, hashmap and set this to items and visibleItems.
-        if (categoryManager.alkitab != null) {
-            for (int i = 0 ; i < categoryManager.alkitab.size() ; i++) {
-                GridItem item = new GridItem(categoryManager.alkitab.get(i), PARENT_ITEM_VIEW);
-                items.add(item);
-                visibleItems.add(item);
-                Log.i("JYN", "[ItemAdapter] add parent : " + categoryManager.alkitab.get(i));
+        RealmResults<GridItem> gridItemList = JeongleeItemManager.getJeongleeItemList(mRealm);
 
+        if (gridItemList != null) {
+            for (GridItem gridItem: gridItemList) {
+                items.add(gridItem);
+                visibleItems.add(gridItem);
+                Log.i("JYN", "[ItemAdapter] add gridItem : " + gridItem);
 
             }
         }
@@ -89,6 +91,12 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         longTouchSelectedItems = new ArrayList<>();
     }
 
+
+    private void init() {
+        mRealm = Realm.getDefaultInstance();
+    }
+
+
     @Override
     public int getItemCount() {
         Log.i(TAG, "getItemCount. count : "+ visibleItems.size());
@@ -98,9 +106,9 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemViewType(int position) {
-        Log.i(TAG, "getItemViewType. position : "+position+", viewType : "+visibleItems.get(position).viewType+", item : "+ visibleItems.get(position).name);
+        Log.i(TAG, "getItemViewType. position : "+position+", viewType : "+visibleItems.get(position).getViewType()+", item : "+ visibleItems.get(position).getTitle());
 
-        return visibleItems.get(position).viewType;
+        return visibleItems.get(position).getViewType();
     }
 
     @Override
@@ -111,11 +119,10 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         switch(viewType){
             case PARENT_ITEM_VIEW:
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_grid, parent, false);
-                viewHolder = new ParentItemVH(view);
+                viewHolder = new GridItemVH(view);
                 break;
+
             case CHILD_ITEM_VIEW:
-                //View subview = LayoutInflater.from(parent.getContext()).inflate(R.layout.category_subitem, parent, false);
-                //viewHolder = new ChildItemVH(subview);
                 break;
         }
 
@@ -125,36 +132,38 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         Log.i(TAG, "onBindViewHolder. position : "+position);
-        if(holder instanceof ParentItemVH){
-            Log.i(TAG, "onBindViewHolder. parentItem. "+visibleItems.get(position).name);
-            final ParentItemVH parentItemVH = (ParentItemVH)holder;
+        if(holder instanceof GridItemVH) {
+            Log.i(TAG, "onBindViewHolder. parentItem. "+visibleItems.get(position).getTitle());
+            final GridItemVH parentItemVH = (GridItemVH)holder;
 
-            if (itemsPendingRemoval.contains(visibleItems.get(position).name)) {
+            if (itemsPendingRemoval.contains(visibleItems.get(position).getTitle())) {
                 /** {show swipe layout} and {hide regular layout} */
 
                 parentItemVH.regularLayout.setVisibility(View.GONE);
                 parentItemVH.swipeLayout.setVisibility(View.VISIBLE);
 
+                /*
                 parentItemVH.undo.setTag(holder);
                 parentItemVH.delete.setTag(holder);
 
                 final int position2 = position;
-                final String removingName = visibleItems.get(position).name;
+                final String removingName = visibleItems.get(position).getTitle();
                 Log.i("JYN", "pso : " + position + "    pos2 : " + position2);
                 parentItemVH.undo.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.i("JYN", "[ItemAdapter][onBindviewHolder] undo is clicked about " + visibleItems.get(position2).name);
+                        Log.i("JYN", "[ItemAdapter][onBindviewHolder] undo is clicked about " + visibleItems.get(position2).getTitle());
                         undoOpt(position2);
                     }
                 });
                 parentItemVH.delete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.i("JYN", "[ItemAdapter][onBindviewHolder] delete is clicked about " + visibleItems.get(position2).name);
+                        Log.i("JYN", "[ItemAdapter][onBindviewHolder] delete is clicked about " + visibleItems.get(position2).getTitle());
                         remove(removingName);
                     }
                 });
+                */
             } else {
 
                 parentItemVH.regularLayout.setVisibility(View.VISIBLE);
@@ -163,8 +172,9 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 //parentItemVH.regularLayout.setTag(holder);
                 //parentItemVH.swipeLayout.setTag(holder);
 
-                parentItemVH.name.setText(visibleItems.get(position).name);
+                parentItemVH.headlineView.setText(visibleItems.get(position).getTitle());
 
+                /*
                 //기존에 구현되어 있던 부분은 else로 넣어버렸다.
                 parentItemVH.name.setTag(holder);
                 parentItemVH.add.setTag(holder);
@@ -176,9 +186,9 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 parentItemVH.add.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        int holderPosition = ((ParentItemVH) v.getTag()).getAdapterPosition();
+                        int holderPosition = ((GridItemVH) v.getTag()).getAdapterPosition();
                         Log.i("JYN", "add btn clicked : " + holderPosition);
-                        String categoryName = visibleItems.get(holderPosition).name;
+                        String categoryName = visibleItems.get(holderPosition).getTitle();
                         ((CategoryEditActivity) mContext).showDialogForInputFolder(holderPosition, categoryName);
                         //여기선 dialog 띄워주는 것 만 하고
                         //dialog에서 입력되는 값이 있고 - 확인을 누르든, 취소를 누르든
@@ -201,17 +211,17 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 parentItemVH.edit.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        int holderPosition = ((ParentItemVH) v.getTag()).getAdapterPosition();
-                        Log.i("JYN", "Edit btn clicked category : " + visibleItems.get(holderPosition).name +
+                        int holderPosition = ((GridItemVH) v.getTag()).getAdapterPosition();
+                        Log.i("JYN", "Edit btn clicked category : " + visibleItems.get(holderPosition).getTitle() +
                                 "  position : " + holderPosition);
-                        showDialogForEditCategoryName(1, visibleItems.get(holderPosition).name, holderPosition);
+                        showDialogForEditCategoryName(1, visibleItems.get(holderPosition).getTitle(), holderPosition);
 
                         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
                     }
                 });
 
                 int subItemSize = getVisibleChildItemSize(position);
-                Log.i("JYN", "Category : " + visibleItems.get(position).name +
+                Log.i("JYN", "Category : " + visibleItems.get(position).getTitle() +
                         " 's sub folder size : " + subItemSize);
                 //if (categoryManager.data_alkitab.get(visibleItems.get(position).name).size() == 0) {
                 //여기선 아래와 같이 해줄 필요가 없을 것 같다
@@ -248,17 +258,14 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 if (subItemSize >= 1) {
                     parentItemVH.arrow.setVisibility(View.VISIBLE);
                 }*/
+
+
                 parentItemVH.arrow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        int holderPosition = ((ParentItemVH) v.getTag()).getAdapterPosition();
-                        Log.i("JYN", "Category : " + visibleItems.get(holderPosition).name + " 's arrow is clicked");
+                        int holderPosition = ((GridItemVH) v.getTag()).getAdapterPosition();
+                        Log.i("JYN", "Category : " + visibleItems.get(holderPosition).getTitle() + " 's arrow is clicked");
 
-                        if (((ParentItem) visibleItems.get(holderPosition)).visibilityOfChildItems) {
-                            collapseChildItems(holderPosition);
-                        } else {
-                            expandChildItems(holderPosition);
-                        }
                     }
                 });
 
@@ -267,8 +274,8 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 parentItemVH.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        int holderPosition = ((ParentItemVH) v.getTag()).getAdapterPosition();
-                        Log.i("JYN", "Category : " + visibleItems.get(holderPosition).name + " 's itemView is clicked");
+                        int holderPosition = ((GridItemVH) v.getTag()).getAdapterPosition();
+                        Log.i("JYN", "Category : " + visibleItems.get(holderPosition).getTitle() + " 's itemView is clicked");
                     }
                 });
 
@@ -276,12 +283,9 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     parentItemVH.itemView.setOnLongClickListener(new View.OnLongClickListener() {
                         @Override
                         public boolean onLongClick(View v) {
-                            int holderPosition = ((ParentItemVH) v.getTag()).getAdapterPosition();
-                            Log.i("JYN", "Category : " + visibleItems.get(holderPosition).name + " 's itemView is long clicked");
+                            int holderPosition = ((GridItemVH) v.getTag()).getAdapterPosition();
+                            Log.i("JYN", "Category : " + visibleItems.get(holderPosition).getTitle() + " 's itemView is long clicked");
 
-                            if (((ParentItem) visibleItems.get(holderPosition)).visibilityOfChildItems) {
-                                collapseChildItems(holderPosition);
-                            }
 
                             // JYN for multi select
                             /*
@@ -294,7 +298,7 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                                 isMultiSelect = false;
                                 longTouchSelectedItems.remove(visibleItems.get(holderPosition).name);
                             }*/
-                            longTouchSelectedItems.add(visibleItems.get(holderPosition).name);
+                            longTouchSelectedItems.add(visibleItems.get(holderPosition).getTitle());
                             notifyItemChanged(holderPosition);
 
                             return true;
@@ -305,71 +309,42 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
 
             // JYN for long touch select
-            if (longTouchSelectedItems.contains(visibleItems.get(position).name)) {
+            if (longTouchSelectedItems.contains(visibleItems.get(position).getTitle())) {
                 Log.i("JYN_ViewHolder", "(if) set color to BLUE");
                 //parentItemVH.itemView.setBackgroundColor(Color.BLUE);
-                parentItemVH.name.setTextColor(Color.BLUE);
+                parentItemVH.headlineView.setTextColor(Color.BLUE);
             } else {
                 //        card_view:cardBackgroundColor="#5cb88b">
                 Log.i("JYN_ViewHolder", "(else) set color to Green");
                 //parentItemVH.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.gridItem));
-                parentItemVH.name.setTextColor(Color.BLACK);
+                parentItemVH.headlineView.setTextColor(Color.BLACK);
             }
-
-        } else if(holder instanceof ChildItemVH){
-            Log.i(TAG, "onBindViewHolder. sub item. "+visibleItems.get(position).name);
-            //JYN modify
-            ChildItemVH childItemVH = (ChildItemVH)holder;
-            childItemVH.edit.setTag(holder);
-            childItemVH.itemView.setTag(holder);
-
-            childItemVH.edit.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int holderPosition = ((ChildItemVH)v.getTag()).getAdapterPosition();
-                    Log.i("JYN", "Edit btn clicked folder : " + visibleItems.get(holderPosition).name +
-                            "  position : " + holderPosition);
-
-                    showDialogForEditCategoryName(0, visibleItems.get(holderPosition).name, holderPosition);
-                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-
-                }
-            });
-
-            childItemVH.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int holderPosition = ((ChildItemVH)v.getTag()).getAdapterPosition();
-                    Log.i("JYN", "folder : " + visibleItems.get(holderPosition).name + " 's itemView is clicked") ;
-                }
-            });
-
-            ((ChildItemVH)holder).name.setText(visibleItems.get(position).name);
+            */
         }
     }
 
     private void undoOpt(int position) {
-        Log.i(TAG, "[undoOpt] : "+visibleItems.get(position).name);
+        Log.i(TAG, "[undoOpt] : "+visibleItems.get(position).getTitle());
 
         Runnable pendingRemovalRunnable = pendingRunnables.get(position);
         pendingRunnables.remove(position);
         if (pendingRemovalRunnable != null)
             handler.removeCallbacks(pendingRemovalRunnable);
-        itemsPendingRemoval.remove(visibleItems.get(position).name);
+        itemsPendingRemoval.remove(visibleItems.get(position).getTitle());
         // this will rebind the row in "normal" state
         notifyItemChanged(position);
     }
 
     public void pendingRemoval(final int position) {
         //이때만해도 position에 따른 visibleItem을 제대로 갖고있다.
-        Log.i(TAG, "[pendingRemoval] pos : " + position +"    item " +visibleItems.get(position).name);
+        Log.i(TAG, "[pendingRemoval] pos : " + position +"    item " +visibleItems.get(position).getTitle());
 
-        if (!itemsPendingRemoval.contains(visibleItems.get(position).name)) {
-            itemsPendingRemoval.add(visibleItems.get(position).name);
+        if (!itemsPendingRemoval.contains(visibleItems.get(position).getTitle())) {
+            itemsPendingRemoval.add(visibleItems.get(position).getTitle());
             // this will redraw row in "undo" state
             notifyItemChanged(position);
             // let's create, store and post a runnable to remove the data
-            final String removingName = visibleItems.get(position).name;
+            final String removingName = visibleItems.get(position).getTitle();
             //여기서 받아온 removingName이 기준이 되어야 한다.
             //이 값이 지워야 할 값 그 자체이며
             //기존처러 position으로 값을 갖고오면, 여기서 얻어오는 값과, run객체에서 실행시 얻어지는 값이 달라지는 경우가 발생한다.
@@ -393,10 +368,7 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     //public void remove(int position) {
     public void remove(String removingName) {
         Log.i(TAG, "[remove] : " + removingName);
-        //Log.i(TAG, "[remove] : " + removingName);
 
-        //if (itemsPendingRemoval.contains(visibleItems.get(position).name)) {
-        //    itemsPendingRemoval.remove(visibleItems.get(position).name);
         if (itemsPendingRemoval.contains(removingName)) {
             itemsPendingRemoval.remove(removingName);
 
@@ -445,48 +417,6 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    private void collapseChildItems(int position){
-        Log.i(TAG, "collapseChildItems");
-        ParentItem parentItem = (ParentItem)visibleItems.get(position);
-        parentItem.visibilityOfChildItems = false;
-
-        int subItemSize = getVisibleChildItemSize(position);
-        for(int i = 0; i < subItemSize; i++){
-            parentItem.unvisibleChildItems.add((ChildItem) visibleItems.get(position + 1));
-            visibleItems.remove(position + 1);
-        }
-        notifyItemRangeRemoved(position + 1, subItemSize);
-    }
-
-    private int getVisibleChildItemSize(int parentPosition){
-        int count = 0;
-        parentPosition++;
-        while(true){
-            if(parentPosition == visibleItems.size() || visibleItems.get(parentPosition).viewType == PARENT_ITEM_VIEW){
-                break;
-            }else{
-                parentPosition++;
-                count++;
-            }
-        }
-        return count;
-    }
-
-    private void expandChildItems(int position){
-        Log.i("JYN", "expandChildItems");
-
-        ParentItem parentItem = (ParentItem)visibleItems.get(position);
-        parentItem.visibilityOfChildItems = true;
-        int childSize = parentItem.unvisibleChildItems.size();
-
-        for(int i = childSize - 1; i >= 0; i--){
-            visibleItems.add(position + 1, parentItem.unvisibleChildItems.get(i));
-        }
-        parentItem.unvisibleChildItems.clear();
-
-        notifyItemRangeInserted(position + 1, childSize);
-    }
-
     public void newAddingFolder(String newAddingFolder, int holderPosition) {
         Log.i("JYN", "newAddingFolder : " + newAddingFolder);
         if(((ParentItem)visibleItems.get(holderPosition)).visibilityOfChildItems){
@@ -504,6 +434,17 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         //Expand상태가 아니라면 먼저 Expand를 시키고 addChildItem() 호출
     }
 
+    public void addGridItem(int position, String newAddingItem) {
+        Log.i("JYN", "addGridItem to : " + position + "     folder : " + newAddingItem);
+
+        position = -1;
+        GridItem gridItem = new GridItem(newAddingItem, "https://");
+        items.add(position + 1, gridItem);
+        visibleItems.add(position + 1, gridItem);
+        notifyItemInserted(position + 1);
+    }
+
+    /*
     public void addParentItem(int position, String newAddingCategory) {
         Log.i("JYN", "addParentItem to : " + position + "     folder : " + newAddingCategory);
 
@@ -522,20 +463,20 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         notifyItemInserted(position + 1);
         notifyItemChanged(position);
     }
-
+    */
 
     @Override
     public boolean onItemMove(int fromPosition, int toPosition) {
         Log.i(TAG, "onItemMove. fromPosition : "+fromPosition+", toPosition : "+toPosition);
-        Log.i(TAG, "onItemMove. fromItem : "+visibleItems.get(fromPosition).name+", toItem : "+visibleItems.get(toPosition).name);
+        Log.i(TAG, "onItemMove. fromItem : "+visibleItems.get(fromPosition).getTitle()+", toItem : "+visibleItems.get(toPosition).getTitle());
 
         if(fromPosition < 0 || fromPosition >= visibleItems.size() || toPosition < 0 || toPosition >= visibleItems.size()){
             return false;
         }
 
-        Item fromItem = visibleItems.get(fromPosition);
+        GridItem fromItem = visibleItems.get(fromPosition);
 
-        if(visibleItems.get(fromPosition).viewType == CHILD_ITEM_VIEW){
+        if(visibleItems.get(fromPosition).getViewType() == CHILD_ITEM_VIEW){
             if(fromPosition <= 0 || toPosition <= 0){
                 return false;
             }
@@ -547,7 +488,7 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             notifyItemMoved(fromPosition, toPosition);
 
         }else{
-            if(visibleItems.get(fromPosition).viewType == visibleItems.get(toPosition).viewType) {
+            if(visibleItems.get(fromPosition).getViewType() == visibleItems.get(toPosition).getViewType()) {
                 if(fromPosition > toPosition){
                     Log.i(TAG, "onItemMove. remove add");
 
@@ -587,7 +528,7 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
 
         for(int i = 0; i < visibleItems.size(); i++){
-            Log.i(TAG, "onItemMove : "+visibleItems.get(i).name);
+            Log.i(TAG, "onItemMove : "+visibleItems.get(i).getTitle());
         }
 
         return true;
@@ -595,8 +536,8 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public void onItemRemove(int position) {
-        Log.i(TAG, "onItemRemove. pos : " + position + "    item : "+visibleItems.get(position).name);
-        switch(visibleItems.get(position).viewType){
+        Log.i(TAG, "onItemRemove. pos : " + position + "    item : "+visibleItems.get(position).getTitle());
+        switch(visibleItems.get(position).getViewType()){
             case PARENT_ITEM_VIEW:
                 //여기서 분기를 하면 어떨까??
                 pendingRemoval(position);
@@ -620,10 +561,9 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             case CHILD_ITEM_VIEW:
                 //여기서 분기를 하면 어떨까?
 
-
                 //JYN modify
-                Log.i("JYN", "onItemSwipe() Delete folder : " + visibleItems.get(position).name);
-                categoryManager.deleteFolder(visibleItems.get(position).name);
+                Log.i("JYN", "onItemSwipe() Delete folder : " + visibleItems.get(position).getTitle());
+                //categoryManager.deleteFolder(visibleItems.get(position).getTitle());
                 //JYN modify end
 
 
@@ -643,19 +583,19 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public void onItemSwipe(int position) {
-        Log.i("JYN", "onItemSwipe. item : "+visibleItems.get(position).name);
-        if(visibleItems.get(position).viewType == PARENT_ITEM_VIEW){
-            Log.i("JYN", "onItemSwipe() Delete category : " + visibleItems.get(position).name);
-            categoryManager.deleteCategory(visibleItems.get(position).name);
+        Log.i("JYN", "onItemSwipe. item : "+visibleItems.get(position).getTitle());
+        if(visibleItems.get(position).getViewType() == PARENT_ITEM_VIEW){
+            Log.i("JYN", "onItemSwipe() Delete category : " + visibleItems.get(position).getTitle());
+            //categoryManager.deleteCategory(visibleItems.get(position).getTitle());
         }else{
-            Log.i("JYN", "onItemSwipe() Delete folder : " + visibleItems.get(position).name);
-            categoryManager.deleteFolder(visibleItems.get(position).name);
+            Log.i("JYN", "onItemSwipe() Delete folder : " + visibleItems.get(position).getTitle());
+            //categoryManager.deleteFolder(visibleItems.get(position).getTitle());
         }
     }
 
     private int getParentPosition(int position){
         while(true){
-            if(visibleItems.get(position).viewType == PARENT_ITEM_VIEW){
+            if(visibleItems.get(position).getViewType() == PARENT_ITEM_VIEW){
                 break;
             }else{
                 position--;
@@ -665,7 +605,8 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     public class GridItemVH extends RecyclerView.ViewHolder {
-        RelativeLayout containerView;
+        RelativeLayout regularLayout;
+        RelativeLayout swipeLayout;
         LinearLayout contentsView;//gridItemContent
         TextView headlineView;
         ImageView imageView;
@@ -678,7 +619,8 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public GridItemVH(View itemView) {
             super(itemView);
             Log.i(TAG, "GridItemVH");
-            containerView = (RelativeLayout)itemView.findViewById(R.id.itemgrid);
+            regularLayout = (RelativeLayout)itemView.findViewById(R.id.itemgrid);
+            swipeLayout = (RelativeLayout)itemView.findViewById(R.id.swipeParentLayout);
             contentsView = (LinearLayout) itemView.findViewById((R.id.gridItemContent));
             headlineView = (TextView) itemView.findViewById(R.id.title);
 
@@ -692,6 +634,7 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         }
     }
+
 
     public class ParentItemVH extends RecyclerView.ViewHolder {
         public RelativeLayout regularLayout;
@@ -707,7 +650,7 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         public ParentItemVH(View itemView) {
             super(itemView);
-            Log.i(TAG, "ParentItemVH");
+            Log.i(TAG, "GridItemVH");
             regularLayout = (RelativeLayout)itemView.findViewById(R.id.regularParentLayout);
             swipeLayout = (RelativeLayout)itemView.findViewById(R.id.swipeParentLayout);
             edit = (ImageButton)itemView.findViewById(R.id.item_edit);
@@ -720,25 +663,4 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             delete = (TextView)itemView.findViewById(R.id.delete);
         }
     }
-
-    public class ChildItemVH extends RecyclerView.ViewHolder {
-        public RelativeLayout regularLayout;
-        public RelativeLayout swipeLayout;
-        ImageButton edit;
-        TextView name;
-        EditText editName;
-        CheckBox checkBox;
-
-        public ChildItemVH(View itemView) {
-            super(itemView);
-            Log.i(TAG, "ChildItemVH");
-            regularLayout = (RelativeLayout)itemView.findViewById(R.id.regularChildLayout);
-            swipeLayout = (RelativeLayout)itemView.findViewById(R.id.swipeChildLayout);
-            edit = (ImageButton)itemView.findViewById(R.id.subitem_edit);
-            name = (TextView)itemView.findViewById(R.id.subitem_name);
-            editName = (EditText)itemView.findViewById(R.id.edit_subitem_name);
-            checkBox = (CheckBox)itemView.findViewById(R.id.subitem_checkbox);
-        }
-    }
-
 }
