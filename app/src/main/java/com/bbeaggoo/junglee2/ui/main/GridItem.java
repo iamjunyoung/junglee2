@@ -22,6 +22,9 @@ public class GridItem extends RealmObject {
     private boolean checked;
     private int viewType = 0; //PARENT_ITEM_VIEW
 
+    public GridItem() {
+    }
+
     public GridItem(String title, String url) {
         this.title = title;
         this.url = url;
