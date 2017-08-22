@@ -8,14 +8,15 @@ import io.realm.annotations.PrimaryKey;
 
 public class GridItem extends RealmObject {
 
-    @PrimaryKey
+
     private long id;
 
+    @PrimaryKey
     private String title;
     private String url = null;
     private String desc;
-    private Drawable img;
-    private Uri uri = null;
+    //private Drawable img;
+    //private Uri uri = null;
     private String category;
     private String folder;
     private String date;
@@ -60,14 +61,18 @@ public class GridItem extends RealmObject {
         this.desc = desc;
     }
 
+    /*
     public Drawable getImg() {
+
         return img;
     }
 
     public void setImg(Drawable img) {
         this.img = img;
     }
+    */
 
+    /*
     public Uri getUri() {
         return uri;
     }
@@ -75,7 +80,7 @@ public class GridItem extends RealmObject {
     public void setUri(Uri uri) {
         this.uri = uri;
     }
-
+    */
     public String getCategory() {
         return category;
     }

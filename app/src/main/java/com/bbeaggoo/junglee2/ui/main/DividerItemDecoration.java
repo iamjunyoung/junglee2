@@ -67,7 +67,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
 
         RecyclerView.ViewHolder viewHolder = (parent.getChildViewHolder(view));
 
-        if(viewHolder instanceof ItemAdapter.GridItemVH){
+        if(viewHolder instanceof GridItemVH){
             outRect.set(0, 1, 0, 1);
         }else{
             outRect.set(20, 1, 20, 1);

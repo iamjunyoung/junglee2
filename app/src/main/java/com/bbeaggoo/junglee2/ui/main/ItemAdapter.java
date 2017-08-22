@@ -73,9 +73,9 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
 
-        Log.i("JYN", "[ItemAdapter ] ItemAdapter is generated");
-
+        JeongleeItemManager.insertTestJeongleeItemData(mRealm);
         RealmResults<GridItem> gridItemList = JeongleeItemManager.getJeongleeItemList(mRealm);
+        Log.i("JYN", "[ItemAdapter ] ItemAdapter is generated gridItemList : " + gridItemList);
 
         if (gridItemList != null) {
             for (GridItem gridItem: gridItemList) {
