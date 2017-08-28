@@ -24,7 +24,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     //예를들어 "Archive" 라고 swipe시에 string을 set하기 위한 변수
     private String leftSwipeLable;
 
-    public ItemTouchHelperCallback(Context context, ItemTouchHelperListener listener){
+    public ItemTouchHelperCallback(Context context, ItemTouchHelperListener listener) {
         this.context = context;
         this.listener = listener;
     }
@@ -33,12 +33,12 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     @Override
     public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
         int dragFlags = -1;
-        if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
-            Log.i("JYN", "getMovementFlags to GridLayoutManager");
-            dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
-        } else {
-            dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-        }
+        //if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
+        Log.i("JYN", "getMovementFlags to GridLayoutManager");
+        dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+        //} else {
+        //    dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
+        //}
         int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
 
         return makeMovementFlags(dragFlags, swipeFlags);
@@ -47,7 +47,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     // user가 item을 drag할 때, ItemTouchHelper가 onMove()를 호출
     @Override
     public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder source, RecyclerView.ViewHolder target) {
-        Log.i(TAG, "onMove. sourcePosition, targetPosition"+source.getAdapterPosition()+","+target.getAdapterPosition());
+        Log.i(TAG, "onMove. sourcePosition, targetPosition" + source.getAdapterPosition() + "," + target.getAdapterPosition());
 
         listener.onItemMove(source.getAdapterPosition(), target.getAdapterPosition());
         return true;
@@ -114,7 +114,7 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
     }
-    */
+
 
     public String getLeftSwipeLable() {
         return leftSwipeLable;
@@ -131,4 +131,5 @@ public class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
     public void setLeftcolorCode(int leftcolorCode) {
         this.leftcolorCode = leftcolorCode;
     }
+    */
 }

@@ -116,18 +116,20 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Log.i(TAG, "onCreateViewHolder. viewType : "+viewType);
-        RecyclerView.ViewHolder viewHolder = null;
 
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false);
+        RecyclerView.ViewHolder viewHolder = new GridItemVH(view);
+        /*
         switch(viewType){
             case PARENT_ITEM_VIEW:
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_grid, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false);
                 viewHolder = new GridItemVH(view);
                 break;
 
             case CHILD_ITEM_VIEW:
                 break;
         }
-
+        */
         return viewHolder;
     }
 
@@ -341,7 +343,7 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public void pendingRemoval(final int position) {
         //이때만해도 position에 따른 visibleItem을 제대로 갖고있다.
-        Log.i(TAG, "[pendingRemoval] pos : " + position +"    item " +visibleItems.get(position).getTitle());
+        Log.i("JYN", "[pendingRemoval] pos : " + position +"    item " +visibleItems.get(position).getTitle());
 
         if (!itemsPendingRemoval.contains(visibleItems.get(position).getTitle())) {
             itemsPendingRemoval.add(visibleItems.get(position).getTitle());
@@ -371,7 +373,7 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     //public void remove(int position) {
     public void remove(String removingName) {
-        Log.i(TAG, "[remove] : " + removingName);
+        Log.i("JYN", "[remove] : " + removingName);
 
         if (itemsPendingRemoval.contains(removingName)) {
             itemsPendingRemoval.remove(removingName);
@@ -401,8 +403,11 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             Log.i("JYN", "childItemSize : " + childItemSize);
             for(int i = 0; i <= childItemSize; i++){
+                */
                 Log.i("JYN", "remove childItemSize also : " + visibleItems.get(newPosition).getTitle());
+
                 visibleItems.remove(newPosition);
+            /*
             }
             notifyItemRangeRemoved(newPosition, childItemSize + 1);
             */
@@ -492,7 +497,7 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             if(fromPosition <= 0 || toPosition <= 0){
                 return false;
             }
-            Log.i(TAG, "onItemMove. remove add");
+            Log.i(TAG, "onItemMove. remove add _ if");
 
             visibleItems.remove(fromPosition);
             visibleItems.add(toPosition, fromItem);
@@ -500,9 +505,12 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             notifyItemMoved(fromPosition, toPosition);
 
         }else{
+            Log.i(TAG, "onItemMove. remove add _ before else");
+            Log.i(TAG, "onItemMove. from type : " + visibleItems.get(fromPosition).getViewType()
+                    + "    to type :" + visibleItems.get(toPosition).getViewType());
             if(visibleItems.get(fromPosition).getViewType() == visibleItems.get(toPosition).getViewType()) {
                 if(fromPosition > toPosition){
-                    Log.i(TAG, "onItemMove. remove add");
+                    Log.i(TAG, "onItemMove. remove add _ else");
 
                     visibleItems.remove(fromPosition);
                     visibleItems.add(toPosition, fromItem);
@@ -510,19 +518,19 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     notifyItemMoved(fromPosition, toPosition);
                 }else{
                     int toParentPosition = getParentPosition(toPosition);
-                    //필요 없는 코드 일 듯
-                    /*
-                    int toLastchildSize = getVisibleChildItemSize(toParentPosition);
-                    Log.i(TAG, "onItemMove. lastChild : "+toLastchildSize);
-                    if(toLastchildSize == 0){
+                    //필요 없는 코드 일 듯 -> 그렇지 않았다.
+
+                    //int toLastchildSize = getVisibleChildItemSize(toParentPosition);
+                    //Log.i(TAG, "onItemMove. lastChild : "+toLastchildSize);
+                    //if(toLastchildSize == 0){
                         Log.i(TAG, "onItemMove. remove add");
 
                         visibleItems.remove(fromPosition);
                         visibleItems.add(toPosition, fromItem);
 
                         notifyItemMoved(fromPosition, toPosition);
-                    }
-                    */
+                    //}
+
                 }
             }else{
                 if(fromPosition < toPosition){

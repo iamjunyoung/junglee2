@@ -25,7 +25,11 @@ public class JeongleeAndroid extends Application {
      */
     private void initRealm() {
         Realm.init(this);
-        RealmConfiguration config = new RealmConfiguration.Builder().build();
+        RealmConfiguration config = new RealmConfiguration
+                .Builder()
+                .deleteRealmIfMigrationNeeded()
+                .inMemory()
+                .build();
         Realm.setDefaultConfiguration(config);
     }
 }

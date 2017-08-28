@@ -2,4 +2,8 @@
     <string name="app_name">junglee2</string>
 
     <string name="action_add_category">Add category</string>
+
+    <string name="action_abandon">Abandon</string>
+    <string name="action_plus">Plus</string>
+    <string name="action_share">Share</string>
 </resources>

@@ -5,6 +5,7 @@ import android.net.Uri;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
+import java.util.Date;
 
 public class GridItem extends RealmObject {
 
@@ -22,6 +23,8 @@ public class GridItem extends RealmObject {
     private String date;
     private boolean checked;
     private int viewType = 0; //PARENT_ITEM_VIEW
+    private Date createdAt;
+
 
     public GridItem() {
     }
@@ -116,4 +119,13 @@ public class GridItem extends RealmObject {
     public int getViewType() { return viewType; }
 
     public void setViewType(int viewType) { this.viewType = viewType; }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
 }
