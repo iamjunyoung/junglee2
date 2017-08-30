@@ -65,11 +65,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
-
-        CollapsingToolbarLayout mCollapseToolbar = (CollapsingToolbarLayout)findViewById(R.id.collapseBar);
-        mCollapseToolbar.setTitle("마이 타이틀");
-
+        setSupportActionBar(toolbar);
     }
 
     public void hideKeyboard(View view) {
@@ -111,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.menu2, menu);
+        //getMenuInflater().inflate(R.menu.menu2, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
