@@ -1,4 +1,4 @@
-package com.bbeaggoo.junglee2.ui.main;
+package com.bbeaggoo.junglee2.ui;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -9,24 +9,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.bbeaggoo.junglee2.R;
+import com.bbeaggoo.junglee2.datas.GridItem;
 import com.bbeaggoo.junglee2.singletons.JeongleeItemManager;
+import com.bbeaggoo.junglee2.ui.main.MainActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
-
-import static android.support.v7.widget.StaggeredGridLayoutManager.TAG;
 
 /**
  * Created by wlsdud.choi on 2016-04-01.
@@ -73,7 +66,7 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
 
-        JeongleeItemManager.insertTestJeongleeItemData(mRealm);
+        JeongleeItemManager.createSampleJeongleeItemData(mRealm);
         RealmResults<GridItem> gridItemList = JeongleeItemManager.getJeongleeItemList(mRealm);
         Log.i("JYN", "[ItemAdapter ] ItemAdapter is generated gridItemList : " + gridItemList);
 
@@ -185,8 +178,10 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 parentItemVH.edit.setTag(holder);
                 parentItemVH.editName.setTag(holder);
                 //parentItemVH.arrow.setTag(holder);
+                */
                 parentItemVH.itemView.setTag(holder);
 
+                /*
                 parentItemVH.add.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -283,6 +278,7 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         Log.i("JYN", "Category : " + visibleItems.get(holderPosition).getTitle() + " 's itemView is clicked");
                     }
                 });
+                */
 
                 if (parentItemVH.getItemViewType() == PARENT_ITEM_VIEW) {
                     parentItemVH.itemView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -291,19 +287,17 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                             int holderPosition = ((GridItemVH) v.getTag()).getAdapterPosition();
                             Log.i("JYN", "Category : " + visibleItems.get(holderPosition).getTitle() + " 's itemView is long clicked");
 
-
                             // JYN for multi select
-                            /*
-                            if (!isMultiSelect) {
+                            if (!((MainActivity)mContext).getLongTouched()) { //long touch상태가 아닌 경우(default)
                                 Log.i("JYN", "set isMultiSelect to true");
-                                isMultiSelect = true;
-                                longTouchSelectedItems.add(visibleItems.get(holderPosition).name);
-                            } else {
-                                Log.i("JYN", "set isMultiSelect to false");
-                                isMultiSelect = false;
-                                longTouchSelectedItems.remove(visibleItems.get(holderPosition).name);
-                            }*/
-                /*
+                                ((MainActivity)mContext).setLongTouched(true);
+                                //longTouchSelectedItems.add(visibleItems.get(holderPosition).getTitle());
+                            } else {                                          //long touch상태인 경우
+                                //Log.i("JYN", "set isMultiSelect to false");
+                                //((MainActivity)mContext).setLongTouched(false);
+                                //longTouchSelectedItems.remove(visibleItems.get(holderPosition).getTitle());
+                            }
+
                             longTouchSelectedItems.add(visibleItems.get(holderPosition).getTitle());
                             notifyItemChanged(holderPosition);
 
@@ -311,9 +305,7 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         }
                     });
                 }
-            }*/
 
-            /*
             // JYN for long touch select
             if (longTouchSelectedItems.contains(visibleItems.get(position).getTitle())) {
                 Log.i("JYN_ViewHolder", "(if) set color to BLUE");
@@ -325,7 +317,7 @@ public class ItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 //parentItemVH.itemView.setBackgroundColor(mContext.getResources().getColor(R.color.gridItem));
                 parentItemVH.headlineView.setTextColor(Color.BLACK);
             }
-            */
+
         }
     }
 

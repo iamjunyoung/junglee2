@@ -1,6 +1,6 @@
 package com.bbeaggoo.junglee2.singletons;
 
-import com.bbeaggoo.junglee2.ui.main.GridItem;
+import com.bbeaggoo.junglee2.datas.GridItem;
 
 import java.util.Calendar;
 
@@ -55,7 +55,7 @@ public class JeongleeItemManager {
     /**
      * 유저 정보 데이터 DB 저장
      */
-    public static void insertTestJeongleeItemData(Realm mRealm){
+    public static void createSampleJeongleeItemData(Realm mRealm){
 
         mRealm.beginTransaction();
         //GridItem gridItem = mRealm.createObject(GridItem.class);

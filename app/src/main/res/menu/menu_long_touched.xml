@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="settings"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/setcategory"
+        android:icon="@drawable/ic_label_black_24dp"
+        android:title="@string/action_plus"
+        app:showAsAction="always" />
+
+    <!--
+    <itemt
+        android:id="@+id/star"
+        android:icon="@drawable/ic_grade_black_24dp"
+        android:title="@string/action_share"
+        app:showAsAction="always" />
+    -->
+    <item
+        android:id="@+id/share"
+        android:icon="@drawable/ic_share_black_24dp"
+        android:title="@string/action_abandon"
+        app:showAsAction="always" />
+
+
+    <item
+        android:id="@+id/fingerprint"
+        android:icon="@drawable/ic_fingerprint_black_24dp"
+        android:title="@string/action_abandon"
+        app:showAsAction="always" />
+
+
+    <item
+        android:id="@+id/trash"
+        android:icon="@drawable/ic_delete_black_24dp"
+        android:title="@string/action_abandon"
+        app:showAsAction="always" />
+
+</menu>

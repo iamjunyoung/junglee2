@@ -1,4 +1,4 @@
-package com.bbeaggoo.junglee2.ui.main;
+package com.bbeaggoo.junglee2.ui;
 
 import android.content.Context;
 import android.graphics.Canvas;

@@ -1,4 +1,4 @@
-package com.bbeaggoo.junglee2.ui.main;
+package com.bbeaggoo.junglee2.ui;
 
 /**
  * Created by wlsdud.choi on 2016-04-04.

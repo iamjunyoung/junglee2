@@ -1,4 +1,4 @@
-package com.bbeaggoo.junglee2.ui.main;
+package com.bbeaggoo.junglee2.ui;
 
 import android.animation.ObjectAnimator;
 import android.support.v7.widget.DefaultItemAnimator;
